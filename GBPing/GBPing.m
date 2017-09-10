@@ -65,14 +65,7 @@ static NSTimeInterval const kDefaultTimeout =           2.0;
 
 -(void)setTimeout:(NSTimeInterval)timeout {
     @synchronized(self) {
-        if (self.isPinging) {
-            if (self.debug) {
-                NSLog(@"GBPing: can't set timeout while pinger is running.");
-            }
-        }
-        else {
-            _timeout = timeout;
-        }
+        _timeout = timeout;
     }
 }
 
@@ -113,14 +106,7 @@ static NSTimeInterval const kDefaultTimeout =           2.0;
 
 -(void)setPayloadSize:(NSUInteger)payloadSize {
     @synchronized(self) {
-        if (self.isPinging) {
-            if (self.debug) {
-                NSLog(@"GBPing: can't set payload size while pinger is running.");
-            }
-        }
-        else {
-            _payloadSize = payloadSize;
-        }
+        _payloadSize = payloadSize;
     }
 }
 
@@ -137,14 +123,7 @@ static NSTimeInterval const kDefaultTimeout =           2.0;
 
 -(void)setPingPeriod:(NSTimeInterval)pingPeriod {
     @synchronized(self) {
-        if (self.isPinging) {
-            if (self.debug) {
-                NSLog(@"GBPing: can't set pingPeriod while pinger is running.");
-            }
-        }
-        else {
-            _pingPeriod = pingPeriod;
-        }
+        _pingPeriod = pingPeriod;
     }
 }
 
@@ -486,9 +465,11 @@ static NSTimeInterval const kDefaultTimeout =           2.0;
         int err;
         NSData *packet;
         ssize_t bytesSent;
+
+        NSUInteger payloadSize = self.payloadSize;
         
         // Construct the ping packet.
-        NSData *payload = [self generateDataWithLength:(self.payloadSize)];
+        NSData *payload = [self generateDataWithLength:payloadSize];
         
         switch (self.hostAddressFamily) {
             case AF_INET: {
@@ -520,7 +501,7 @@ static NSTimeInterval const kDefaultTimeout =           2.0;
             newPingSummary.host = self.host;
             newPingSummary.sendDate = sendDate;
             newPingSummary.ttl = self.ttl;
-            newPingSummary.payloadSize = self.payloadSize;
+            newPingSummary.payloadSize = payloadSize;
             newPingSummary.status = GBPingStatusPending;
             
             //add it to pending pings
