@@ -25,12 +25,14 @@ typedef void(^StartupCallback)(BOOL success, NSError *error);
 @property (assign, atomic) NSUInteger               payloadSize;
 @property (assign, atomic) NSUInteger               ttl;
 @property (assign, atomic, readonly) BOOL           isPinging;
+@property (assign, atomic, readonly) BOOL           isPaused;
 @property (assign, atomic, readonly) BOOL           isReady;
 
 @property (assign, atomic) BOOL                     debug;
 
 -(void)setupWithBlock:(StartupCallback)callback;
 -(void)startPinging;
+-(void)pause;
 -(void)stop;
 
 @end

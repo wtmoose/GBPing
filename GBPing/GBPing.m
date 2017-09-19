@@ -43,6 +43,7 @@ static NSTimeInterval const kDefaultTimeout =           2.0;
 @property (assign, nonatomic) uint16_t                  identifier;
 
 @property (assign, atomic, readwrite) BOOL              isPinging;
+@property (assign, atomic, readwrite) BOOL              isPaused;
 @property (assign, atomic, readwrite) BOOL              isReady;
 @property (assign, nonatomic) NSUInteger                nextSequenceNumber;
 @property (strong, atomic) NSMutableDictionary          *pendingPings;
@@ -323,6 +324,7 @@ static NSTimeInterval const kDefaultTimeout =           2.0;
         
         //we're pinging now
         self.isPinging = YES;
+        self.isPaused = NO;
         [listenThread start];
         [sendThread start];
     }
@@ -602,10 +604,33 @@ static NSTimeInterval const kDefaultTimeout =           2.0;
     }
 }
 
+-(void)pause {
+    @synchronized(self) {
+        if (self.isPaused || self.isStopped) {
+            self.isPinging = NO;
+
+            //clean up pendingpings
+            [self.pendingPings removeAllObjects];
+            self.pendingPings = nil;
+            for (NSNumber *key in [self.timeoutTimers copy]) {
+                NSTimer *timer = self.timeoutTimers[key];
+                [timer invalidate];
+            }
+
+            //clean up timeouttimers
+            [self.timeoutTimers removeAllObjects];
+            self.timeoutTimers = nil;
+
+            self.isPaused = YES;
+        }
+    }
+}
+
 -(void)stop {
     @synchronized(self) {
         if (!self.isStopped) {
             self.isPinging = NO;
+            self.isPaused = NO;
             
             self.isReady = NO;
             
