@@ -606,7 +606,7 @@ static NSTimeInterval const kDefaultTimeout =           2.0;
 
 -(void)pause {
     @synchronized(self) {
-        if (self.isPaused || self.isStopped) {
+        if (self.isPinging) {
             self.isPinging = NO;
 
             //clean up pendingpings
